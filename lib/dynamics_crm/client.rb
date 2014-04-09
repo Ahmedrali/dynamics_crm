@@ -25,12 +25,12 @@ module DynamicsCRM
     # Initializes Client instance.
     # Requires: organization_name
     # Optional: hostname
-    def initialize(config={organization_name: nil, hostname: nil, caller_id: nil})
+    def initialize(config={organization_name: nil, hostname: nil, caller_id: nil, end_point: "XRMServices/2011/Organization.svc"})
       raise RuntimeError.new("organization_name is required") if config[:organization_name].nil?
 
       @organization_name = config[:organization_name]
       @hostname = config[:hostname] || "#{@organization_name}.api.crm.dynamics.com"
-      @organization_endpoint = "https://#{@hostname}/XRMServices/2011/Organization.svc"
+      @organization_endpoint = "https://#{@hostname}/#{config[:end_point]}"
       @caller_id = config[:caller_id]
     end
 
