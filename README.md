@@ -70,6 +70,30 @@ client.delete('account', '53291AAB-4A9A-E311-B097-6C3BE5A8DD60')
 # => {}
 ```
 
+### Associate
+
+```ruby
+# Associate contacts of ids "223ab2bb-c7c3-e311-b78b-6c3be5bedcf4" and "100b8016-c0c0-e311-b78b-6c3be5bedcf4" to the
+# account of id "fdc69982-d2bf-e311-b78b-6c3be5bedcf4" under the relation "contact_customer_accounts"
+contacts = [
+              DynamicsCRM::XML::EntityReference.new("contact", "223ab2bb-c7c3-e311-b78b-6c3be5bedcf4"),
+              DynamicsCRM::XML::EntityReference.new("contact", "100b8016-c0c0-e311-b78b-6c3be5bedcf4")
+          ]
+client.associate("account", "fdc69982-d2bf-e311-b78b-6c3be5bedcf4", "contact_customer_accounts", contacts)
+```
+
+### Disassociate
+
+```ruby
+# Disassociate contacts of ids "223ab2bb-c7c3-e311-b78b-6c3be5bedcf4" and "100b8016-c0c0-e311-b78b-6c3be5bedcf4" to the
+# account of id "fdc69982-d2bf-e311-b78b-6c3be5bedcf4" under the relation "contact_customer_accounts"
+contacts = [
+              DynamicsCRM::XML::EntityReference.new("contact", "223ab2bb-c7c3-e311-b78b-6c3be5bedcf4"),
+              DynamicsCRM::XML::EntityReference.new("contact", "100b8016-c0c0-e311-b78b-6c3be5bedcf4")
+          ]
+client.disassociate("account", "fdc69982-d2bf-e311-b78b-6c3be5bedcf4", "contact_customer_accounts", contacts)
+```
+
 ### retrieve_all_entities
 
 ```ruby

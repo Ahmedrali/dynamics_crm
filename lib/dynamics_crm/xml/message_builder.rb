@@ -169,11 +169,13 @@ module DynamicsCRM
       end
 
       def associate_request(entity_name, id, relationship, relationship_entities=[])
-        modify_association("Associate", entity_name, id, relationship, relationship_entities)
+        req = build_association(entity_name, id, relationship, relationship_entities)
+        execute_request("Associate", req, true)
       end
 
       def disassociate_request(entity_name, id, relationship, relationship_entities=[])
-        modify_association("Disassociate", entity_name, id, relationship, relationship_entities)
+        req = build_association(entity_name, id, relationship, relationship_entities)
+        execute_request("Disassociate", req, true)
       end
 
       def modify_association(action, entity_name, id, relationship, relationship_entities=[])
@@ -195,16 +197,16 @@ module DynamicsCRM
         end
       end
 
-      def execute_request(action, parameters={})
+      def execute_request(action, parameters={}, ref = false)
 
         # Default namespace is /crm/2011/Contracts
         ns_alias = "b"
         # Metadata Service calls are under the /xrm/2011/Contracts schema.
-        if ["RetrieveAllEntities", "RetrieveEntityMetadata", "RetrieveEntity", "RetrieveAttribute", "RetrieveMultiple"].include?(action)
+        if ["RetrieveAllEntities", "RetrieveEntityMetadata", "RetrieveEntity", "RetrieveAttribute", "RetrieveMultiple", "Associate", "Disassociate"].include?(action)
           ns_alias = 'a'
         end
 
-        parameters_xml = XML::Parameters.new(parameters)
+        parameters_xml = ref ? parameters : XML::Parameters.new(parameters)
         build_envelope('Execute') do
           %Q{<Execute xmlns="http://schemas.microsoft.com/xrm/2011/Contracts/Services" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
             <request i:type="#{ns_alias}:#{action}Request" xmlns:a="http://schemas.microsoft.com/xrm/2011/Contracts" xmlns:b="http://schemas.microsoft.com/crm/2011/Contracts">
@@ -215,7 +217,63 @@ module DynamicsCRM
            </Execute>}
          end
       end
+      
+      def build_association(entity_name, id, relationship, relationship_entities)
+        res =   "<a:Parameters xmlns:b=\"http://schemas.datacontract.org/2004/07/System.Collections.Generic\">"
+        res +=  build_target_entity(id, entity_name)
+        res +=  build_relation(relationship)
+        res +=  build_related_entities(relationship_entities)
+        res +=  "</a:Parameters>"
+      end
+      
+      def build_target_entity(id, logic_name)
+        return %Q{
+                    <a:KeyValuePairOfstringanyType>
+                    <b:key>Target</b:key>
+                      <b:value i:type="a:EntityReference">
+                        <a:Id>#{id}</a:Id>
+                        <a:LogicalName>#{logic_name}</a:LogicalName>
+                      </b:value>
+                    </a:KeyValuePairOfstringanyType>
+                }
+      end
+      
+      def build_relation(r)
+        return %Q{
+                    <a:KeyValuePairOfstringanyType>
+                      <b:key>Relationship</b:key>
+                      <b:value i:type=\"a:Relationship\">
+                        <a:PrimaryEntityRole i:nil=\"true\" />
+                        <a:SchemaName>#{r}</a:SchemaName>
+                      </b:value>
+                    </a:KeyValuePairOfstringanyType>
+                }
+      end
 
+      def build_related_entities(entities)
+        res = %Q{
+                   <a:KeyValuePairOfstringanyType>
+                   <b:key>RelatedEntities</b:key>
+                    <b:value i:type="a:EntityReferenceCollection">
+                  }
+        entities.each do |e| 
+          res << build_entity_ref(e)
+        end 
+        res +=%Q{ 
+                   </b:value>
+                   </a:KeyValuePairOfstringanyType>
+                }
+      end
+      
+      def build_entity_ref(entity)
+        return %Q{
+                  <a:EntityReference>
+                    <a:Id>#{entity.id}</a:Id>
+                    <a:LogicalName>#{entity.logical_name}</a:LogicalName>
+                  </a:EntityReference>
+              }
+      end
+      
     end
     # MessageBuilder
   end

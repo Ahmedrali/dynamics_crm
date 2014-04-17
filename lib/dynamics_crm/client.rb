@@ -18,7 +18,7 @@ module DynamicsCRM
     # Login URL: Policy -> Issuer -> Address
     # Region: SecureTokenService -> AppliesTo
     LOGIN_URL = "https://login.microsoftonline.com/RST2.srf"
-    REGION = 'urn:crmna:dynamics.com'
+    REGION = 'urn:crmemea:dynamics.com'
 
     attr_accessor :logger, :caller_id
 
@@ -144,13 +144,13 @@ module DynamicsCRM
     def associate(entity_name, guid, relationship, related_entities)
       request = associate_request(entity_name, guid, relationship, related_entities)
       xml_response = post(@organization_endpoint, request)
-      return Response::AssociateResponse.new(xml_response)
+      return Response::ExecuteResult.new(xml_response)
     end
 
     def disassociate(entity_name, guid, relationship, related_entities)
       request = disassociate_request(entity_name, guid, relationship, related_entities)
       xml_response = post(@organization_endpoint, request)
-      return Response::DisassociateResponse.new(xml_response)
+      return Response::ExecuteResult.new(xml_response)
     end
 
     def create_attachment(entity_name, entity_id, options={})
