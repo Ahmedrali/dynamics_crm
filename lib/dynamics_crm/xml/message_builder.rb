@@ -239,11 +239,16 @@ module DynamicsCRM
       end
       
       def build_relation(r)
+        entity_role = "<a:PrimaryEntityRole i:nil=\"true\" />"
+        s = r.split("_")
+        if s[0] == s[s.length-1]
+          entity_role = "<a:PrimaryEntityRole i:nil=\"false\">Referencing</a:PrimaryEntityRole>"
+        end
         return %Q{
                     <a:KeyValuePairOfstringanyType>
                       <b:key>Relationship</b:key>
                       <b:value i:type=\"a:Relationship\">
-                        <a:PrimaryEntityRole i:nil=\"true\" />
+                        #{entity_role}
                         <a:SchemaName>#{r}</a:SchemaName>
                       </b:value>
                     </a:KeyValuePairOfstringanyType>
